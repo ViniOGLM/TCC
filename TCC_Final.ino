@@ -1,8 +1,10 @@
 /*************************************************************
 TCC By: Felipe Marostega e Vinicius Golim
-Versão: 1.2
-link do repositório do GitHub: https://github.com/ViniOGLM/BlynkTCC.git
+Versão: 1.3
+link do repositório do GitHub: https://github.com/ViniOGLM/TCC.git
 Broker e dashboard: Blynk
+Simulador: https://wokwi.com/projects/377791125355616257
+Library: Blynk \ LiquidCrystal I2C \ HCSR04
 *************************************************************/
 
 /* Preencha as informações do Blynk Device Info Aqui */
@@ -22,6 +24,7 @@ Broker e dashboard: Blynk
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
 #include <LiquidCrystal_I2C.h>
+#include <HCSR04.h>
 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 UltraSonicDistanceSensor distanceSensor(pino_trigger, pino_echo); //Conexao RCW-001 ou HC-SR04
