@@ -1,6 +1,6 @@
 /*************************************************************
 TCC By: Felipe Marostega e Vinicius Golim
-Versão: 1.3
+Versão: 1.8
 link do repositório do GitHub: https://github.com/ViniOGLM/TCC.git
 Broker e dashboard: Blynk
 Simulador: https://wokwi.com/projects/377791125355616257
