@@ -12,15 +12,18 @@ Library: Blynk \ LiquidCrystal I2C \ HCSR04
 #define BLYNK_TEMPLATE_NAME         "Quickstart Template"
 #define BLYNK_AUTH_TOKEN            "VWlfdcmVjkmNSjR2buM9dHaa3glkkd9I"
 #define BLYNK_PRINT Serial
-
-#define ledA 4
-#define ledB 2
-#define ldr 34
-#define fitaled 12
-#define pino_trigger 5
-#define pino_echo 18
-#define buzzer 13
-#define chuva 35
+ 
+#define sala 4                  // V0
+#define quarto 2                // V1
+#define quarto2 20              // V2
+#define cozinha 17              // V3
+#define banheiro 16             // V5
+#define ldr 34                  // V6
+#define fitaled 12              // V7
+#define pino_trigger 5          // V4
+#define pino_echo 18            // V4
+#define buzzer 13               // Sem pino virtual
+#define chuva 35                // V8
 
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -40,21 +43,21 @@ char pass[] = "Vvgolimoliveira";
 BlynkTimer timer;
 
 /****************************************************************
-                        Comando ledA
+                        Comando sala
 ****************************************************************/
 BLYNK_WRITE(V0)
 {
   int value = param.asInt();
-  digitalWrite(ledA,value);
+  digitalWrite(sala,value);
 }
 
 /****************************************************************
-                        Comando ledB
+                        Comando quarto
 ****************************************************************/
 BLYNK_WRITE(V1)
 {
   int value = param.asInt();
-  digitalWrite(ledB,value);
+  digitalWrite(quarto,value);
 }
 
 
@@ -153,8 +156,8 @@ void loop()
   /* Se a leitura analógica for menor que 300 */
   if ( val_a < 2000)
   {
-      digitalWrite(ledB, HIGH);
+      digitalWrite(quarto, HIGH);
   }
   else
-      digitalWrite(ledB, LOW);
+      digitalWrite(quarto, LOW);
 }
