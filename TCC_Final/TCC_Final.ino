@@ -14,25 +14,29 @@ Library: Blynk \ LiquidCrystal I2C \ HCSR04
 #define BLYNK_PRINT Serial
  
 #define sala 4                  // V0
-#define quarto 2                // V1
-#define quarto2 20              // V2
-#define cozinha 17              // V3
-#define banheiro 16             // V5
-#define ldr 34                  // V6
-#define fitaled 12              // V7
-#define pino_trigger 5          // V4
-#define pino_echo 18            // V4
+#define quarto 23               // V1
+#define quarto2 19              // V2
+#define cozinha 5              // V3
+#define banheiro 18             // V5
+//#define ldr                  // Sem pino virtual
+#define fitaled 33              // V7
+#define pino_trigger 27          // V4
+#define pino_echo 34            // V4
 #define buzzer 13               // Sem pino virtual
 #define chuva 35                // V8
+#define SERVO_PIN 26            // Sem pino virtual
+#define ledinterno 2            // Sem pino virtual
 
 #include <WiFi.h>
 #include <WiFiClient.h>
 #include <BlynkSimpleEsp32.h>
 #include <LiquidCrystal_I2C.h>
 #include <HCSR04.h>
+#include <ESP32Servo.h>
 
 LiquidCrystal_I2C lcd(0x27,16,2);  // set the LCD address to 0x27 for a 16 chars and 2 line display
 UltraSonicDistanceSensor distanceSensor(pino_trigger, pino_echo); //Conexao RCW-001 ou HC-SR04
+Servo servoMotor;
 
 int show=0;
 int val_a = 0;   /* Armazena leitura do pino analógico */
@@ -52,12 +56,44 @@ BLYNK_WRITE(V0)
 }
 
 /****************************************************************
-                        Comando quarto
+                        Comando quarto 1
 ****************************************************************/
 BLYNK_WRITE(V1)
 {
   int value = param.asInt();
   digitalWrite(quarto,value);
+}
+/****************************************************************
+                        Comando quarto 2
+****************************************************************/
+BLYNK_WRITE(V2)
+{
+  int value = param.asInt();
+  digitalWrite(quarto2,value);
+}
+/****************************************************************
+                        Comando cozinha
+****************************************************************/
+BLYNK_WRITE(V3)
+{
+  int value = param.asInt();
+  digitalWrite(cozinha,value);
+}
+/****************************************************************
+                        Comando banheiro
+****************************************************************/
+BLYNK_WRITE(V5)
+{
+  int value = param.asInt();
+  digitalWrite(banheiro,value);
+}
+/****************************************************************
+                        Comando varanda
+****************************************************************/
+BLYNK_WRITE(V7)
+{
+  int value = param.asInt();
+  digitalWrite(fitaled,value);
 }
 
 
@@ -74,20 +110,32 @@ void setup()
   Serial.begin(115200);
   Blynk.begin(BLYNK_AUTH_TOKEN, ssid, pass);
   //Definição de pinos
-  pinMode(4, OUTPUT);            //Define o píno 4 como saída
-  pinMode(2, OUTPUT);            //Define o píno 2 como saída
-  pinMode(ldr, INPUT);           //Define o pino 35 como entrada
-  pinMode(fitaled, OUTPUT);      //Define o píno 12 como saída
-  pinMode(buzzer, OUTPUT);       //Define o píno 13 como saída
-  pinMode(chuva, INPUT);
+  pinMode(quarto, OUTPUT);       //Define como saída
+  pinMode(quarto2, OUTPUT);      //Define como saída
+  pinMode(fitaled, OUTPUT);      //Define como saída
+  pinMode(buzzer, OUTPUT);       //Define como saída
+  pinMode(sala, OUTPUT);         //Define como saída
+  pinMode(cozinha, OUTPUT);      //Define como saída
+  pinMode(banheiro, OUTPUT);     //Define como saída
+  pinMode(ledinterno, OUTPUT);   //Define como saída
+  //pinMode(ldr, INPUT);           //Define como entrada
+  pinMode(chuva, INPUT);         //Define como entrada
 
+  Blynk.virtualWrite(V0, 0);
+  Blynk.virtualWrite(V1, 0);
+  Blynk.virtualWrite(V2, 0);
+  Blynk.virtualWrite(V3, 0);
+  Blynk.virtualWrite(V5, 0);
+  Blynk.virtualWrite(V7, 0);
 
-  timer.setInterval(1000L, myTimerEvent);
+  servoMotor.attach(SERVO_PIN);  // attaches the servo on ESP32 pin
+
+  timer.setInterval(100L, myTimerEvent);
   timer.setInterval(100L, leituraAnalogica);
 
 //Rotina LCD Após conexão com servidor
-  lcd.init();                      // Inicia o LCD
-  delay(500);                    // atraso de meio segundo
+  lcd.init();                     // Inicia o LCD
+  delay(500);                     // atraso de meio segundo
   lcd.clear();                    // limpa a tela
   lcd.backlight();                // Liga a luz de fundo do LCD
   lcd.setCursor(0,0);             // Define o cursor na coluna 1, linha 1
@@ -101,63 +149,70 @@ void setup()
 //Da ESP32 para o Blynk
 void myTimerEvent()
 {
-  Blynk.virtualWrite(V2, millis() / 1000);
+
 }
 
 //Da ESP32 para o Blynk
+
 void leituraAnalogica()
 {
-  int ldrValue=analogRead(ldr);
-  ldrValue=map(ldrValue,0,4095,0,200);
-  Serial.print("LDR: ");
-  Serial.println(ldrValue);
-  if(ldrValue > 20)
-  {
-    digitalWrite(fitaled, HIGH);
-    }
-  else
-  {
-    digitalWrite(fitaled, LOW);
-  }
-  Blynk.virtualWrite(V5, millis() / 1000);
+  Blynk.virtualWrite(V6, millis() / 100);
 }
 
 void loop()
 {
-  Blynk.run();
-  timer.run();
-  /****************************************************************
+/****************************************************************
                       Sensor ultrassônico
 ****************************************************************/
     Serial.print("Distancia: ");
     Serial.print(distanceSensor.measureDistanceCm());
     Serial.println(" cm");
-    delay(500);
 
     if(distanceSensor.measureDistanceCm() <= 21)
     {
       Serial.println("Status do Buzzer: ON");
       digitalWrite(buzzer, HIGH);
-      Blynk.virtualWrite(V4, 255);
     }
     else
     {
       Serial.println("Status do Buzzer: OFF");
       digitalWrite(buzzer, LOW);
-      Blynk.virtualWrite(V4, 0);
     }
 /****************************************************************
                          Chuva
 ****************************************************************/
  /* Armazena os valores de leitura */
   val_a = analogRead(chuva);
-
+  Serial.print("Valor sensor chuva analog: ");
   Serial.println(val_a);
-  /* Se a leitura analógica for menor que 300 */
-  if ( val_a < 2000)
-  {
-      digitalWrite(quarto, HIGH);
-  }
+    if (val_a < 2500)
+    {
+          int pos = 180;
+          servoMotor.write(pos);
+          Blynk.virtualWrite(V8, 1);
+          Blynk.virtualWrite(V9, 1);
+    }
   else
-      digitalWrite(quarto, LOW);
+  {
+        int pos = 0;
+        servoMotor.write(pos);
+        Blynk.virtualWrite(V8, 0);
+        Blynk.virtualWrite(V9, 0);
+  }
+/****************************************************************
+                      Sensor LDR
+****************************************************************/
+/* int ldrValue=analogRead(ldr);
+ // Serial.print("LDR: ");
+  //Serial.println(ldrValue);
+  if(ldrValue >= 20)
+  {
+    digitalWrite(ledinterno, LOW);
+    }
+  else
+  {
+    digitalWrite(ledinterno, HIGH);
+  }*/
+  Blynk.run();
+  timer.run();
 }
