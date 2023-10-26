@@ -1,4 +1,5 @@
-===================================================================================================================
+==================================================================================================================
+
 TCC By: Felipe Marostega e Vinicius Golim
 Controle supervisório da maquete didática usando IoT, através do broker blynk e microcontrolador ESP32
 Versão: 1.8
@@ -6,7 +7,9 @@ link do repositório do GitHub: https://github.com/ViniOGLM/TCC.git
 Broker e dashboard: Blynk
 Simulador: https://wokwi.com/projects/377791125355616257
 Library: Blynk \ LiquidCrystal I2C \ HCSR04
-==================================================================================================================
+
+=================================================================================================================
+
 PinoOut e pinIn do projeto:
 sala                     Pino fisíco da ESP32: 04    ||  Pino Virtual do Blynk: V0
 quarto                   Pino fisíco da ESP32: 23    ||  Pino Virtual do Blynk: V1
