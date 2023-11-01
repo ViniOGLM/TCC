@@ -4,7 +4,7 @@ Versão: 1.8
 link do repositório do GitHub: https://github.com/ViniOGLM/TCC.git
 Broker e dashboard: Blynk
 Simulador: https://wokwi.com/projects/377791125355616257
-Library: Blynk \ LiquidCrystal I2C \ HCSR04
+Library: Blynk \ LiquidCrystal I2C \ HCSR04 \ ESP32Servo
 *************************************************************/
 
 /* Preencha as informações do Blynk Device Info Aqui */
@@ -16,16 +16,16 @@ Library: Blynk \ LiquidCrystal I2C \ HCSR04
 #define sala 4                  // V0
 #define quarto 23               // V1
 #define quarto2 19              // V2
-#define cozinha 5              // V3
+#define cozinha 5               // V3
 #define banheiro 18             // V5
-//#define ldr                  // Sem pino virtual
 #define fitaled 33              // V7
-#define pino_trigger 27          // V4
+#define pino_trigger 27         // V4
 #define pino_echo 34            // V4
 #define buzzer 13               // Sem pino virtual
 #define chuva 35                // V8
 #define SERVO_PIN 26            // Sem pino virtual
 #define ledinterno 2            // Sem pino virtual
+#define ventiladores 25         // V6
 
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -95,6 +95,14 @@ BLYNK_WRITE(V7)
   int value = param.asInt();
   digitalWrite(fitaled,value);
 }
+/****************************************************************
+                        Comando ventiladores
+****************************************************************/
+BLYNK_WRITE(V6)
+{
+  int value = param.asInt();
+  digitalWrite(ventiladores,value);
+}
 
 
 BLYNK_CONNECTED()
@@ -118,7 +126,7 @@ void setup()
   pinMode(cozinha, OUTPUT);      //Define como saída
   pinMode(banheiro, OUTPUT);     //Define como saída
   pinMode(ledinterno, OUTPUT);   //Define como saída
-  //pinMode(ldr, INPUT);           //Define como entrada
+  pinMode(ventiladores, OUTPUT); //Define como saída
   pinMode(chuva, INPUT);         //Define como entrada
 
   Blynk.virtualWrite(V0, 0);
@@ -126,12 +134,12 @@ void setup()
   Blynk.virtualWrite(V2, 0);
   Blynk.virtualWrite(V3, 0);
   Blynk.virtualWrite(V5, 0);
+  Blynk.virtualWrite(V6, 0);
   Blynk.virtualWrite(V7, 0);
 
   servoMotor.attach(SERVO_PIN);  // attaches the servo on ESP32 pin
 
   timer.setInterval(100L, myTimerEvent);
-  timer.setInterval(100L, leituraAnalogica);
 
 //Rotina LCD Após conexão com servidor
   lcd.init();                     // Inicia o LCD
@@ -152,13 +160,6 @@ void myTimerEvent()
 
 }
 
-//Da ESP32 para o Blynk
-
-void leituraAnalogica()
-{
-  Blynk.virtualWrite(V6, millis() / 100);
-}
-
 void loop()
 {
 /****************************************************************
@@ -168,15 +169,17 @@ void loop()
     Serial.print(distanceSensor.measureDistanceCm());
     Serial.println(" cm");
 
-    if(distanceSensor.measureDistanceCm() <= 21)
+    if(distanceSensor.measureDistanceCm() <= 28)
     {
       Serial.println("Status do Buzzer: ON");
       digitalWrite(buzzer, HIGH);
+      Blynk.virtualWrite(V4, 1);
     }
     else
     {
       Serial.println("Status do Buzzer: OFF");
       digitalWrite(buzzer, LOW);
+      Blynk.virtualWrite(V4, 0);
     }
 /****************************************************************
                          Chuva
@@ -199,20 +202,6 @@ void loop()
         Blynk.virtualWrite(V8, 0);
         Blynk.virtualWrite(V9, 0);
   }
-/****************************************************************
-                      Sensor LDR
-****************************************************************/
-/* int ldrValue=analogRead(ldr);
- // Serial.print("LDR: ");
-  //Serial.println(ldrValue);
-  if(ldrValue >= 20)
-  {
-    digitalWrite(ledinterno, LOW);
-    }
-  else
-  {
-    digitalWrite(ledinterno, HIGH);
-  }*/
   Blynk.run();
   timer.run();
 }
