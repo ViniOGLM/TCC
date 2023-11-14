@@ -1,6 +1,6 @@
 /*************************************************************
 TCC By: Felipe Marostega e Vinicius Golim
-Versão: 1.8
+Versão: 2.0 
 link do repositório do GitHub: https://github.com/ViniOGLM/TCC.git
 Broker e dashboard: Blynk
 Simulador: https://wokwi.com/projects/377791125355616257
@@ -26,6 +26,7 @@ Library: Blynk \ LiquidCrystal I2C \ HCSR04 \ ESP32Servo
 #define SERVO_PIN 26            // Sem pino virtual
 #define ledinterno 2            // Sem pino virtual
 #define ventiladores 25         // V6
+#define LDR 32
 
 #include <WiFi.h>
 #include <WiFiClient.h>
@@ -128,6 +129,7 @@ void setup()
   pinMode(ledinterno, OUTPUT);   //Define como saída
   pinMode(ventiladores, OUTPUT); //Define como saída
   pinMode(chuva, INPUT);         //Define como entrada
+  pinMode(LDR, INPUT);           //Define como entrada
 
   Blynk.virtualWrite(V0, 0);
   Blynk.virtualWrite(V1, 0);
@@ -163,21 +165,36 @@ void myTimerEvent()
 void loop()
 {
 /****************************************************************
+                      Sensor LDR
+****************************************************************/
+
+int analogValueldr = analogRead(LDR);
+Serial.print("LDR: ");
+Serial.println(analogValueldr);
+
+    if(analogValueldr > 0)
+    {
+      digitalWrite(2, HIGH);
+    }
+    else
+      digitalWrite(2, LOW);
+
+/****************************************************************
                       Sensor ultrassônico
 ****************************************************************/
-    Serial.print("Distancia: ");
-    Serial.print(distanceSensor.measureDistanceCm());
-    Serial.println(" cm");
+    //Serial.print("Distancia: ");
+    //Serial.print(distanceSensor.measureDistanceCm());
+    //Serial.println(" cm");
 
     if(distanceSensor.measureDistanceCm() <= 28)
     {
-      Serial.println("Status do Buzzer: ON");
+      //Serial.println("Status do Buzzer: ON");
       digitalWrite(buzzer, HIGH);
       Blynk.virtualWrite(V4, 1);
     }
     else
     {
-      Serial.println("Status do Buzzer: OFF");
+      //Serial.println("Status do Buzzer: OFF");
       digitalWrite(buzzer, LOW);
       Blynk.virtualWrite(V4, 0);
     }
@@ -186,8 +203,8 @@ void loop()
 ****************************************************************/
  /* Armazena os valores de leitura */
   val_a = analogRead(chuva);
-  Serial.print("Valor sensor chuva analog: ");
-  Serial.println(val_a);
+  //Serial.print("Valor sensor chuva analog: ");
+  //Serial.println(val_a);
     if (val_a < 2500)
     {
           int pos = 180;
