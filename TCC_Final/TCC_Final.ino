@@ -178,6 +178,9 @@ Serial.println(analogValueldr);
     }
     else
       digitalWrite(2, LOW);
+      lcd.clear();
+      lcd.setCursor(0,0);             // Define o cursor na coluna 1, linha 1
+      lcd.print(analogValueldr);
 
 /****************************************************************
                       Sensor ultrassônico
@@ -198,6 +201,8 @@ Serial.println(analogValueldr);
       digitalWrite(buzzer, LOW);
       Blynk.virtualWrite(V4, 0);
     }
+    lcd.setCursor(0,1);
+    lcd.print(distanceSensor.measureDistanceCm());
 /****************************************************************
                          Chuva
 ****************************************************************/
